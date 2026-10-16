@@ -1,0 +1,51 @@
+{
+  "title": "CATT: code and data release",
+  "upload_type": "software",
+  "description": "<p>Code and per-item data for the paper <em>CATT: Complexity-Aware Thinker-Talker Orchestration for Low-Latency Spoken Responses in Digital Humans</em>. Includes the exact orchestration code of the main experiment (byte-identical to the frozen package, with checksums), the judge prompts and scripts, an analysis script that recomputes the main reported values (see README) from the released data, per-item records for the 738 evaluated items (per-turn metrics, judge labels, listening-rating scores, timelines, spoken text and reasoning), and per-item records of the transfer study on three hosted models. Benchmark items are not redistributed; GPQA Diamond and AIME texts, including model responses and reasoning on those items, are given as identifiers, metrics and hashes only.</p><p>Licences: the code is licensed under the Apache License 2.0 (see LICENSE); the data generated in this study are licensed under CC BY 4.0 (see LICENSE-DATA).</p>",
+  "creators": [
+    {
+      "name": "Cheng, Xi",
+      "orcid": "0009-0005-7475-9452",
+      "affiliation": "University of Science and Technology of China"
+    },
+    {
+      "name": "Ding, Zezhen",
+      "orcid": "0009-0008-5482-4941",
+      "affiliation": "The Hong Kong University of Science and Technology"
+    },
+    {
+      "name": "Xu, Fengyu",
+      "orcid": "0009-0001-0049-320X",
+      "affiliation": "City University of Hong Kong"
+    },
+    {
+      "name": "Xu, Kaidi",
+      "orcid": "0000-0003-4437-0671",
+      "affiliation": "City University of Hong Kong"
+    },
+    {
+      "name": "Chen, Tianlong",
+      "orcid": "0000-0001-7774-8197",
+      "affiliation": "University of North Carolina at Chapel Hill"
+    }
+  ],
+  "license": "cc-by-4.0",
+  "access_right": "open",
+  "version": "1.0.0",
+  "keywords": [
+    "spoken dialogue",
+    "digital human",
+    "large language models",
+    "reasoning",
+    "latency",
+    "orchestration"
+  ],
+  "notes": "Code: Apache-2.0 (LICENSE). Data generated in this study (data/, router_bank/ vectors and rows.csv, evaluation/analysis/expected/, docs/): CC BY 4.0 (LICENSE-DATA). Benchmark items keep their own terms and are not included.",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/xixi951/catt",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ]
+}

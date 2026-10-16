@@ -1,0 +1,78 @@
+{
+ "model": "Qwen3-32B",
+ "weights_path": "/data/userhome/xi/.cache/huggingface/hub/models--Qwen--Qwen3-32B/snapshots/9216db5781bf21249d130ec9da846c4624c16137",
+ "weights_revision": "9216db5781bf21249d130ec9da846c4624c16137",
+ "engines": {
+  "thinker": {
+   "server_root": "http://127.0.0.1:18011",
+   "base_url": "http://127.0.0.1:18011/v1",
+   "max_model_len": 32768
+  },
+  "talker": {
+   "server_root": "http://127.0.0.1:18012",
+   "base_url": "http://127.0.0.1:18012/v1",
+   "max_model_len": 24576
+  }
+ },
+ "fixture_sha256": {
+  "MAIN": "b095728d5980f913e35dfe22b651cf4bd567ec7c9095532e6244fea9ac934c5d",
+  "DEVD": "26f70ef98facd805ac965d5c3a96a2468e1f5fe6807efcc87b3579cc4274059a",
+  "DEVSMOKE": "c7e84cc3653282c01ce8aac5d7aed92eb49dc2bdbd0c418ff4103a61bac1ed5a"
+ },
+ "router_uds": "/tmp/exp20261009-router.sock",
+ "router_threshold": 0.5444878691642917,
+ "reasoning_budget": 16000,
+ "max_tokens_per_call": 20000,
+ "request_timeout_seconds": 1200,
+ "turn_watchdog_seconds": 1200,
+ "schedule_seed": 20261009,
+ "generation_seed": 20261009,
+ "reset_prefix_cache": true,
+ "tts_model_dir": "/data/userhome/xi/sherpa-onnx-models/vits-piper-en_US-amy-low",
+ "talker_params": {
+  "easy_variant": "E1",
+  "bridge_max_tokens": 64,
+  "bridge_max_chars": 300,
+  "progress_max_tokens": 200,
+  "final_max_tokens": 800,
+  "progress_overlap_chars": 400,
+  "final_tail_chars": 6000,
+  "bridge_fp_base_s": 4.98,
+  "bridge_fp_per_ktok_s": 0.15,
+  "bridge_start_s": 0.91,
+  "bridge_wps": 2.41,
+  "bridge_margin_s": 0.3,
+  "bridge_min_words": 8,
+  "bridge_max_words": 24,
+  "bridge_cap_factor": 1.6,
+  "bridge_max_sentences": 2,
+  "bridge_one_sentence_max_words": 14
+ },
+ "controller_params": {
+  "k1_tokens": 200,
+  "k2_tokens": 400,
+  "backlog_seconds": 5.0,
+  "lowq_lead_s": 2.5,
+  "lowq_floor_tokens": 100,
+  "lowq_enabled": true
+ },
+ "resource_allocation_reference": "User allocation 2026-10-09: newsrv GPUs 2,3,4,5 for EXP-20261009-001 (about two days); engines start only after the guard finds all four free of other processes.",
+ "v4_options": {
+  "clause_cut": false,
+  "parallel_route": true,
+  "open_final": true,
+  "easy_open": true,
+  "fix_splitter": true,
+  "fix_bridge_guard": true,
+  "speech_norm": true
+ },
+ "nvroute": {
+  "ckpt": "/data/userhome/xi/experiments/metahuman-EXP-20261002-001/ckpt/nvidia_prompt_task_and_complexity_classifier",
+  "deberta_cfg": "/data/userhome/xi/experiments/metahuman-EXP-20261002-001/ckpt/deberta_v3_base_config",
+  "tau": 0.1191,
+  "threads": 4
+ },
+ "deployment": {
+  "talker_mps_active_thread_percentage": 50
+ }
+}

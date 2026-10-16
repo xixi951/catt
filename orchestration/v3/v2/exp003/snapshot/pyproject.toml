@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metahuman"
+version = "0.1.0"
+description = "数字人语音对话系统（research-plan.md v5.0 实装骨架）"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.20",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+]
+router = [
+    "transformers>=4.40",
+    "torch>=2.0",
+    "huggingface_hub>=0.20",
+    "numpy>=1.20",
+    # R15: production real-mode router is RouteLLM BERT (see §6.2).
+    # Pinned to a minor-range bound until the upstream API stabilizes;
+    # we depend on Controller.routers["bert"].calculate_strong_win_rate.
+    "routellm>=0.2,<0.3",
+]
+llm = [
+    "dashscope",
+]
+stt = [
+    "faster-whisper",
+]
+tts = [
+    # Local Piper VITS via sherpa-onnx; replaced edge-tts as the
+    # production TTS backend in §8.6 (R18) — service-side latency was
+    # the dominant TTFA component and source of intermittent
+    # NoAudioReceived failures.
+    "sherpa-onnx>=1.10",
+]
+tts-edge = [
+    # Retained as an optional path for environments where downloading
+    # the sherpa-onnx Piper model is impractical. Not the default.
+    "edge-tts",
+    "pydub",
+]
+all = [
+    "transformers>=4.40",
+    "torch>=2.0",
+    "huggingface_hub>=0.20",
+    "numpy>=1.20",
+    "routellm>=0.2,<0.3",
+    "dashscope",
+    "faster-whisper",
+    "sherpa-onnx>=1.10",
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["metahuman*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+asyncio_mode = "strict"
+testpaths = ["tests"]

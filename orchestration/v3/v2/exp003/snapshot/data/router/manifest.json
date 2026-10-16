@@ -1,0 +1,12 @@
+{
+  "embedding_model": "Qwen/Qwen3-Embedding-0.6B",
+  "embedding_dim": 1024,
+  "row_count": 761,
+  "instruction_version": "route_query_v1",
+  "instruction": "Represent the user request for LLM routing. Similar requests should require similar levels of reasoning, domain expertise, coding ability, mathematical ability, and need for a stronger reasoning model.",
+  "normalize": true,
+  "battles_csv_sha256": "2bda05e4e1340b73be1beda02693753675a91e4756b1a39aa971763f0dd510d6",
+  "embeddings_npy_sha256": "43af71cca9342abac539355d99cd1e0d35f8e5476bd1f727d65f40e4d623d7bf",
+  "train_fixture_sha256": "2cab778513870f281bffbfbcb38e65aee2b50f1f47b8c5bf085d606a57b63487",
+  "source_battles_csv_sha256": "2bda05e4e1340b73be1beda02693753675a91e4756b1a39aa971763f0dd510d6"
+}

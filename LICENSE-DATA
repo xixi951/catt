@@ -1,0 +1,24 @@
+Data licence
+
+The data generated in this study and released in this repository (everything under `data/`, the expected values in
+`evaluation/analysis/expected/`, the reference vectors and row map in `router_bank/`, and the documentation under
+`docs/`) are licensed under the Creative Commons
+Attribution 4.0 International licence (CC BY 4.0).
+
+  Summary: https://creativecommons.org/licenses/by/4.0/
+  Legal code: https://creativecommons.org/licenses/by/4.0/legalcode
+
+You may share and adapt these data for any purpose, provided you give appropriate credit (cite the paper and this
+release, see CITATION.cff), provide a link to the licence, and indicate if changes were made.
+
+Benchmark items are not part of this release and are not covered by this licence. AIME 2026, GPQA Diamond and the
+VoiceBench subsets (MMSU, AlpacaEval) keep their own terms of use; see docs/BENCHMARKS.md. The released data contain
+identifiers and hashes of benchmark items, model outputs, timings and judge scores, but no benchmark question or
+option text. GPQA Diamond and AIME texts are withheld: on those items every model response, reasoning text, spoken
+sentence and judge input is given as identifiers, metrics and hashes only. Model outputs were generated with
+Qwen3-32B (Apache-2.0) and, in the transfer study, with three hosted models: DeepSeek V4.1 Flash and GLM-5.2
+through a third-party OpenAI-compatible API service, and Qwen3.5-27B directly through Alibaba Cloud Bailian
+(DashScope). Judge scores were produced with gpt-5.6-luna and gemini-3.1-flash-lite through a third-party
+OpenAI-compatible API service.
+
+The code in this repository is licensed separately under the Apache License 2.0 (LICENSE).

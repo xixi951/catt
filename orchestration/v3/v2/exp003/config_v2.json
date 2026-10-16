@@ -1,0 +1,23 @@
+{
+  "model": "Qwen3-32B",
+  "server_root": "http://127.0.0.1:18003",
+  "base_url": "http://127.0.0.1:18003/v1",
+  "weights_path": "/data/userhome/xi/.cache/huggingface/hub/models--Qwen--Qwen3-32B/snapshots/9216db5781bf21249d130ec9da846c4624c16137",
+  "weights_revision": "9216db5781bf21249d130ec9da846c4624c16137",
+  "max_model_len": 40960,
+  "fixture": "scripts/data/router_sweep_questions_paper_main.jsonl",
+  "fixture_sha256": "3a1cdac1162a9b236b62222b453564955305be1f7f02cbba8427defd506f5276",
+  "router_uds": "/tmp/exp003v2-router.sock",
+  "router_threshold": 0.55,
+  "reasoning_budget": 16000,
+  "max_tokens_per_call": 20000,
+  "backlog_seconds": 5.0,
+  "cooldown_seconds": 0.0,
+  "request_timeout_seconds": 1200,
+  "turn_watchdog_seconds": 1200,
+  "schedule_seed": 20261002,
+  "generation_seed": 20261002,
+  "repetitions": 1,
+  "tts_model_dir": "/data/userhome/xi/sherpa-onnx-models/vits-piper-en_US-amy-low",
+  "resource_allocation_reference": "User authorization relayed by the main window, 2026-10-02: newsrv GPUs 0, 1, 6, 7 for EXP-20260930-003 (checked idle 2026-10-02 16:36 CST)"
+}

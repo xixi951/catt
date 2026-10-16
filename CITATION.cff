@@ -1,0 +1,54 @@
+cff-version: 1.2.0
+message: "If you use this code or data, please cite the paper and this release."
+title: "CATT: code and data release"
+type: software
+version: "1.0.0"
+date-released: "2026-10-16"
+license:
+  - Apache-2.0
+  - CC-BY-4.0
+repository-code: "https://github.com/xixi951/catt"
+authors:
+  - family-names: Cheng
+    given-names: Xi
+    orcid: "https://orcid.org/0009-0005-7475-9452"
+    affiliation: "School of the Gifted Young, University of Science and Technology of China"
+  - family-names: Ding
+    given-names: Zezhen
+    orcid: "https://orcid.org/0009-0008-5482-4941"
+    affiliation: "Department of Industrial Engineering and Decision Analytics, The Hong Kong University of Science and Technology"
+  - family-names: Xu
+    given-names: Fengyu
+    orcid: "https://orcid.org/0009-0001-0049-320X"
+    affiliation: "Department of Data Science, City University of Hong Kong"
+  - family-names: Xu
+    given-names: Kaidi
+    orcid: "https://orcid.org/0000-0003-4437-0671"
+    affiliation: "Department of Data Science, City University of Hong Kong"
+  - family-names: Chen
+    given-names: Tianlong
+    orcid: "https://orcid.org/0000-0001-7774-8197"
+    affiliation: "Department of Computer Science, University of North Carolina at Chapel Hill"
+keywords:
+  - spoken dialogue
+  - digital human
+  - large language models
+  - reasoning
+  - latency
+preferred-citation:
+  type: article
+  title: "CATT: Complexity-Aware Thinker-Talker Orchestration for Low-Latency Spoken Responses in Digital Humans"
+  authors:
+    - family-names: Cheng
+      given-names: Xi
+    - family-names: Ding
+      given-names: Zezhen
+    - family-names: Xu
+      given-names: Fengyu
+    - family-names: Xu
+      given-names: Kaidi
+    - family-names: Chen
+      given-names: Tianlong
+  journal: "Electronics"
+  year: 2026
+  notes: "Under review."

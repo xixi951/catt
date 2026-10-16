@@ -1,0 +1,147 @@
+--- orchestration/code/speech_norm.py	2026-10-09 19:08:43
++++ orchestration_post_study_fix/speech_norm.py	2026-10-11 10:47:28
+@@ -4,6 +4,10 @@
+   conditions (CATT configurations and both baselines). It turns LaTeX / markdown / math symbols into
+   words and replaces any formula whose spoken form would exceed ``LONG_FORMULA_WORDS`` words with a
+   short phrase, so no condition reads a long formula aloud. The displayed (scored) text is unchanged.
++  The post-study fix adds two pre-passes, everything else is the frozen
++  EXP-20261009-001 file: markdown emphasis asterisks are removed (they were read as "times") and a
++  spaced dash between words is kept as a dash (it was read as "minus"); see ``_strip_emphasis`` and
++  ``_protect_prose_dashes``. Math reads as before.
+ * ``split_sentences(text, accept_comma)``: the sentence splitter used by every talker. Unlike the
+   recovered splitter it never ends a sentence at a decimal point, a thousands comma, an initial or a
+   common abbreviation, and it waits for the next character before deciding on a period.
+@@ -318,8 +322,116 @@
+             out.append(toks[i])
+             i += 1
+     return ' '.join(out)
++
++
++# ---------------------------------------------------------------------------
++# Post-study fix pre-passes: markdown emphasis and prose dashes
++# ---------------------------------------------------------------------------
++
++_EMPH_OPEN_LEFT = set('([{"“‘\'')                 # besides start of text and whitespace
++_EMPH_OPEN_RIGHT = set('"“‘\'(-')                 # besides letters and digits
++_EMPH_CLOSE_LEFT = set('.,;:!?"”’\')-')           # besides letters and digits
++_EMPH_CLOSE_RIGHT = set('.,;:!?)]}—–-"”’\'')      # besides end of text and whitespace
++_QUOTES = '"“”‘’\''
+ 
+ 
++def _strip_emphasis(s: str) -> str:
++    """Remove markdown emphasis asterisks (``*text*``), which the operator step read as "times".
++
++    After v4's removal of ``**``, an *opening* asterisk has start of text, whitespace or an opening
++    bracket / quote on its left and a letter, digit, quote, ``(`` or ``-`` on its right; a *closing*
++    asterisk has a letter, digit, closing punctuation, quote, ``)`` or ``-`` on its left and end of text,
++    whitespace or punctuation on its right. Opening / closing pairs are removed. An unpaired one (emphasis
++    split across sentence chunks) is removed only in prose context: an opening one with text after it and
++    nothing, a word or prose punctuation before it; a closing one after a word of two or more letters or a
++    quote. A math asterisk has no space on either side (``2*3``, ``k*b``) or a space on both (``A² * B``),
++    so it is never in either form; an asymmetric one next to a math operand (``(1/2) *kq²``) and star
++    notation after a single letter (``a*``, ``A*``) are unpaired and keep their reading."""
++    if '*' not in s:
++        return s
++    n = len(s)
++    kinds = {}
++    for i, ch in enumerate(s):
++        if ch != '*':
++            continue
++        left = s[i - 1] if i > 0 else ''
++        right = s[i + 1] if i + 1 < n else ''
++        if (not left or left.isspace() or left in _EMPH_OPEN_LEFT) and right and (right.isalnum() or right in _EMPH_OPEN_RIGHT):
++            kinds[i] = 'open'
++        elif left and (left.isalnum() or left in _EMPH_CLOSE_LEFT) and (not right or right.isspace() or right in _EMPH_CLOSE_RIGHT):
++            kinds[i] = 'close'
++    def stray_open(i: int) -> bool:
++        # unpaired opening asterisk: text follows, and prose (or nothing) precedes; a math operand before it
++        # ("(1/2) *kq²") keeps the asterisk
++        if not (s[i + 1].isalpha() or s[i + 1] in _QUOTES):
++            return False
++        before = s[:i].rstrip()
++        if not before:
++            return True
++        return bool(re.search(r'(?:[A-Za-z]{2,}|[,;:!?—–' + _QUOTES + r'(\[{])$', before))
++
++    def stray_close(i: int) -> bool:
++        # unpaired closing asterisk after a word of two or more letters (or a quote); a single letter before it
++        # is math star notation ("a*", "A*") and keeps the asterisk
++        return bool(re.search(r'(?:[A-Za-z]{2,}|[' + _QUOTES + r'])$', s[:i]))
++
++    drop = set()
++    pending = None
++    for i in sorted(kinds):
++        if kinds[i] == 'open':
++            if pending is not None and stray_open(pending):
++                drop.add(pending)              # an earlier unpaired opening asterisk
++            pending = i
++        elif pending is not None:
++            drop.update((pending, i))
++            pending = None
++        elif stray_close(i):
++            drop.add(i)                        # unpaired closing asterisk
++    if pending is not None and stray_open(pending):
++        drop.add(pending)
++    if not drop:
++        return s
++    return ''.join(ch for i, ch in enumerate(s) if i not in drop)
++
++
++_DASH_KEEP = '\ue001'          # placeholder for a prose dash; restored as '-' (v4 maps an en dash to '-')
++_SPACED_DASH = re.compile(r'(?<=\S)(\s+)([-–])(\s+)(?=\S)')
++_MATH_WORDS = set(g.lower() for g in _GREEK) | {
++    'sin', 'cos', 'tan', 'sec', 'csc', 'cot', 'sinh', 'cosh', 'tanh', 'arcsin', 'arccos', 'arctan', 'log', 'ln',
++    'exp', 'sqrt', 'max', 'min', 'det', 'lim', 'mod', 'gcd', 'lcm', 'dx', 'dy', 'dz', 'dt', 'du', 'dv', 'dr', 'ds'}
++_MATH_OPERAND = re.compile(r'^[(\[]*(?:\d[\d.,]*|[A-Za-z])[)\]]*[,.;:]?$')
++
++
++def _protect_prose_dashes(s: str) -> str:
++    """Hide a spaced dash between words from the operator step, which read it as "minus".
++
++    A spaced en dash (``Cinema – Cruel``, ``Shine – 2024``) is prose unless both neighbours are numbers or
++    single letters (``5 – 3``, ``x – y`` keep "minus"). A spaced hyphen-minus is prose only between two words
++    of at least two letters that are not math words (``Radio - Study``); single-letter operands, digits and
++    brackets (``n - R``, ``3y - 12``, ``S(tau) - S(rho)``) keep "minus". The dash is restored as ``-``, the
++    character v4 already left in place for a dash it did not convert."""
++    if '-' not in s and '–' not in s:
++        return s
++
++    def neighbours(m: re.Match):
++        left = s[:m.start()].rsplit(None, 1)[-1] if s[:m.start()].strip() else ''
++        right = s[m.end():].split(None, 1)[0] if s[m.end():].strip() else ''
++        return left, right
++
++    def sub(m: re.Match) -> str:
++        left, right = neighbours(m)
++        lt, rt = left.strip(_QUOTES + '*'), right.strip(_QUOTES + '*')
++        if m.group(2) == '–':
++            prose = not (_MATH_OPERAND.match(lt) and _MATH_OPERAND.match(rt))
++        else:
++            lw = re.search(r'(?:^|[^A-Za-z0-9_^])([A-Za-z]{2,})[' + _QUOTES + r'*]*$', left)
++            rw = re.match(r'^[' + _QUOTES + r'*]*([A-Za-z]{2,})(?![A-Za-z0-9_(^])', right)
++            prose = bool(lw and rw and lw.group(1).lower() not in _MATH_WORDS and rw.group(1).lower() not in _MATH_WORDS)
++        return m.group(1) + _DASH_KEEP + m.group(3) if prose else m.group(0)
++
++    return _SPACED_DASH.sub(sub, s)
++
++
+ def spoken(text: str, info: dict = None) -> str:
+     """Spoken form of one chunk (see module docstring). ``info`` (optional) receives counters."""
+     info = {} if info is None else info
+@@ -330,6 +442,8 @@
+         s = re.sub(r'(?m)^\s*#{1,6}\s*', '', s)
+         s = re.sub(r'(?m)^\s*[-*•]\s+', '', s)
+         s = s.replace('|', ' ')
++        s = _strip_emphasis(s)                 # post-study fix
++        s = _protect_prose_dashes(s)           # post-study fix
+ 
+         def span_sub(m: re.Match) -> str:
+             body = next(g for g in m.groups() if g is not None)
+@@ -350,6 +464,7 @@
+         s = _operators_to_words(s)
+         s = re.sub(r'\s+([,.;:!?])', r'\1', s)
+         s = re.sub(r'[ \t]+', ' ', s).strip()
++        s = s.replace(_DASH_KEEP, '-')         # post-study fix
+         if s != text:
+             info['changed'] = True
+         return s or text

@@ -1,0 +1,18 @@
+CATT code and data release
+Copyright 2026 Xi Cheng, Zezhen Ding, Fengyu Xu, Kaidi Xu and Tianlong Chen
+
+The code in this repository is licensed under the Apache License, Version 2.0 (LICENSE). The data generated in this
+study are licensed under CC BY 4.0 (LICENSE-DATA).
+
+This release does not include third-party model weights, datasets or software. Running the code uses, among others:
+- Qwen3-32B and Qwen3-Embedding-0.6B (Qwen team, Alibaba Cloud), Apache License 2.0;
+- vLLM (vLLM project), Apache License 2.0;
+- NVIDIA prompt-task-and-complexity-classifier (NVIDIA), under its model licence on the Hugging Face Hub;
+- sherpa-onnx (k2-fsa), Apache License 2.0, with the Piper voice en_US-amy-low (rhasspy/piper voices), under the
+  voice's own licence;
+- numpy, httpx and the Python standard library.
+Obtain them from their distributors and follow their licences.
+
+Benchmark items (AIME 2026 via MathArena, GPQA Diamond, VoiceBench MMSU and AlpacaEval) are not redistributed;
+see docs/BENCHMARKS.md for sources and terms. GPQA Diamond and AIME texts, including model responses and reasoning
+on those items, are withheld; the data give identifiers, metrics and hashes only.
