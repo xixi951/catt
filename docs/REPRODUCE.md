@@ -10,15 +10,16 @@ cd evaluation/analysis
 python reproduce_paper.py --data ../../data --out results --check expected/paper_numbers_expected.json
 ```
 
-Requires Python 3.9 or later and numpy. The script recomputes 5,968 reported values with the study's statistics and
-checks them against `expected/paper_numbers_expected.json`: 1,553 values of the main contrasts (the three CATT
+Requires Python 3.9 or later and numpy. The script recomputes 6,003 reported values with the study's statistics and
+checks them against `expected/paper_numbers_expected.json`: 1,585 values of the main contrasts (the three CATT
 configurations against both baselines on the 738 evaluated items: timing, accuracy, calls, tokens and energy, with
-silence on turns routed to reasoning, intermediate-speech errors, routing and reasoning identity), 6 of the
-test-retest agreement of the gpt-5.6-luna labels (same first substantive sentence: 359 of 373 re-judged turns;
-same intermediate-error flag: 151 of 152), 523 of the listening rating (including the validity probes, and
-exact-agreement summaries of its test-retest and inter-judge agreement; these summaries are not the ICCs reported in
-the paper), 3,240 of the ReVerT comparison and 646 of the transfer study (with that study's own bootstrap seed,
-20261011). Expected result: `0 differences`.
+silence on turns routed to reasoning, intermediate-speech errors, routing and reasoning identity; for the router
+configuration, intermediate-speech errors also over all 410 turns routed to reasoning), 9 of the test-retest
+agreement of the gpt-5.6-luna labels (same first substantive sentence: 359 of 373 re-judged turns; same
+intermediate-error flag: 151 of 152, and 6 of 6 for the labels added in release 1.1.0), 523 of the listening rating
+(including the validity probes, and exact-agreement summaries of its test-retest and inter-judge agreement; these
+summaries are not the ICCs reported in the paper), 3,240 of the ReVerT comparison and 646 of the transfer study (with
+that study's own bootstrap seed, 20261011). Expected result: `0 differences`.
 
 The script does not recompute several reported results, including:
 

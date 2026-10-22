@@ -53,7 +53,7 @@ Per-turn metrics computed by the study's frozen per-attempt code from the run re
 | `final_prompt`, `easy_prompt` | Prompt variant used for the final answer or the easy-path answer. |
 | `bridge_audio_s`, `bridge_played_before_easy`, `bridge_guard_v4` | Bridge audio length; bridge audio before an easy answer; bridge answer-guard firings. |
 | `norm_changed_chunks`, `norm_long_formula` | Speech-normalizer changes and long formulas replaced. |
-| `g2_included`, `intermediate_error` | Whether the turn counts for intermediate-speech errors (CATT turns routed to reasoning; closed-form only if strictly correct) and whether gpt-5.6-luna labelled any update WRONG or REVERSED. |
+| `g2_included`, `intermediate_error` | Whether the turn counts for intermediate-speech errors (CATT turns routed to reasoning; closed-form only if strictly correct) and whether gpt-5.6-luna labelled any update WRONG or REVERSED. The 65 router-configuration turns that this rule leaves out (closed-form, final answer not strictly correct) are labelled in `v4/luna_labels_wrong_final.jsonl.gz`. |
 | `llm_calls`, `calls_thinker`, `calls_talker`, `peak_concurrent_llm_calls` | Model calls. |
 | `budget_forced_calls`, `forced` | Calls and turns that reached the 16,000-token reasoning budget. |
 | `tokens_*` | Prompt, completion and reasoning tokens by engine. |
@@ -78,6 +78,32 @@ equal those of the same turn there. `substantive` and `sentences` are null when 
 re-judged; `intermediate`, `updates` and `update_seqs` are null when only its sentences were. `reproduce_paper.py`
 compares the two files: the same first substantive sentence in 359 of 373 turns (96.2 %) and the same
 intermediate-error flag in 151 of 152 turns (99.3 %).
+
+## `v4/luna_labels_wrong_final.jsonl.gz` (65 records) and `v4/luna_labels_wrong_final_retest.jsonl.gz` (6 records)
+
+Added in release 1.1.0. The gpt-5.6-luna intermediate-error labels of the turns that `g2_included` leaves out in the
+router configuration: the 65 closed-form `catt_v4_route` turns routed to reasoning whose final answer is not
+strictly correct (`correct_strict` 0; 50 GPQA Diamond, 13 AIME 2026 and 2 MMSU turns). They come from a separate
+judging run with the same judge (served snapshot gpt-5.6-luna-2026-07-09), prompt (`judge_g2.md`), settings,
+parsing and counting rule as the labels in `v4/luna_labels.jsonl.gz`. The units are built as by
+`evaluation/judging/build_luna_units.py`, with its strict-correctness filter inverted to select these turns;
+`judge_luna.py --check-prompts` re-renders all 71 recorded prompts of this run (65 turns and 6 re-judged turns) with
+identical sha256.
+
+The format and text rules are those of `v4/luna_labels.jsonl.gz` (one record per turn, 549 updates in all; GPQA
+and AIME updates as hashes and lengths). `substantive` and `sentences` are null: the sentence labels of the same turns
+are in `v4/luna_labels.jsonl.gz`, where `intermediate` and `updates` of these turns stay null. `v4/turns.csv` is
+unchanged: for these turns `g2_included` is 0 and `intermediate_error` is empty. Together with `intermediate_error`
+of the 345 turns that `g2_included` counts, these labels cover all 410 turns that the router configuration sent to
+reasoning. The NVIDIA-router and all-thinking configurations have no such labels. From both sources,
+`reproduce_paper.py` computes the intermediate-error rate over all 410 turns routed to reasoning (62 turns, 15.1 %),
+over their 168 closed-form turns (58, 34.5 %) and over the 65 turns with a wrong final answer (32, 49.2 %), and it
+splits the 168 closed-form turns into correct final answer without (77) and with (26) an intermediate error and
+wrong final answer with (32) and without (33) one.
+
+The retest file holds the re-judged sample of these units, drawn with the same step (`--retest 0.10 --retest-seed
+20261009` over the 65 units: 6 turns), in the format of `v4/luna_labels_retest.jsonl.gz`. The intermediate-error
+flag is the same in 6 of the 6 turns.
 
 ## `v4/transcripts/<condition>.jsonl.gz` (738 records each)
 

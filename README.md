@@ -38,12 +38,17 @@ cd evaluation/analysis
 python reproduce_paper.py --data ../../data --out results --check expected/paper_numbers_expected.json
 ```
 
-This recomputes 5,968 reported values from the released per-item data with the study's statistics and compares them
-with `expected/paper_numbers_expected.json`: 1,553 values of the main contrasts (the three CATT configurations
+This recomputes 6,003 reported values from the released per-item data with the study's statistics and compares them
+with `expected/paper_numbers_expected.json`: 1,585 values of the main contrasts (the three CATT configurations
 against both baselines on the 738 items: timing, accuracy, calls, tokens and energy, with silence on turns routed to
-reasoning, intermediate-speech errors, routing and reasoning identity), 6 of the test-retest agreement of the
+reasoning, intermediate-speech errors, routing and reasoning identity), 9 of the test-retest agreement of the
 gpt-5.6-luna labels, 523 of the listening rating, 3,240 of the ReVerT comparison and 646 of the transfer study. It
-takes about 20 seconds and needs no GPU, model or network access.
+takes about 20 seconds and needs no GPU, model or network access. Intermediate-speech errors are recomputed for the
+turns that count under the main rule (closed-form turns only with a strictly correct final answer) and, for the
+router configuration, over all 410 turns routed to reasoning: 62 of the 410 turns, 58 of the 168 closed-form turns,
+32 of the 65 closed-form turns with a wrong final answer, and the split of the 168 closed-form turns into correct
+final answer without and with an intermediate error (77 and 26 turns) and wrong final answer with and without one
+(32 and 33), each with its Wilson interval.
 
 The script does not recompute several reported results, including the per-dataset contrasts, the McNemar tests, the
 distribution appendix, the failure-case table, the unit-level intermediate-error counts, the between-configuration

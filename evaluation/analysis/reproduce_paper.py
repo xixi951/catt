@@ -4,6 +4,10 @@ Inputs (all under --data):
   v4/turns.csv                                  one row per item and condition (5 conditions x 738 items)
   v4/luna_labels.jsonl.gz                       gpt-5.6-luna labels (first substantive sentence, intermediate errors)
   v4/luna_labels_retest.jsonl.gz                the same labels for the re-judged sample (test-retest agreement)
+  v4/luna_labels_wrong_final.jsonl.gz           gpt-5.6-luna intermediate-error labels of the 65 closed-form turns of
+                                                the router configuration routed to reasoning whose final answer is not
+                                                strictly correct (not counted by g2_included)
+  v4/luna_labels_wrong_final_retest.jsonl.gz    the same labels for their re-judged sample (6 turns)
   listening_rating/exp20261015001_scores.csv    listening rating: CATT router and both baselines, probes, retest
   listening_rating/exp20261015002_scores.csv    listening rating: NVIDIA-router and all-thinking configurations,
                                                 ReVerT, second retest (plus the first study's main scores as main001)
@@ -16,7 +20,9 @@ estimate is the median (times) or mean (accuracy, ratings) of the paired differe
 drops the pair. Rates use the Wilson interval. Timing values of 1200 s mean "not reached within the turn watchdog".
 
 Substantive-content timing and intermediate-speech errors use the gpt-5.6-luna labels; their test-retest agreement
-compares the re-judged labels with the main ones. The listening rating uses both judges (gpt-5.6-luna,
+compares the re-judged labels with the main ones. Intermediate-speech errors are given for the turns counted by
+g2_included (closed-form turns only when the final answer is strictly correct) and, for the router configuration,
+over all turns routed to reasoning. The listening rating uses both judges (gpt-5.6-luna,
 gemini-3.1-flash-lite) and their per-turn mean.
 
 Usage:
@@ -324,6 +330,52 @@ def luna_retest_numbers(main_path: Path, retest_path: Path) -> dict:
 
 
 # ----------------------------------------------------------------------------------------------------------------
+# intermediate-speech errors over all turns routed to reasoning (router configuration)
+# ----------------------------------------------------------------------------------------------------------------
+
+def rate_wilson(k: int, n: int) -> dict:
+    lo, hi = wilson(k, n)
+    return {'n_turns': n, 'n_error_turns': k, 'rate': (k / n) if n else None, 'wilson_low': lo, 'wilson_high': hi}
+
+
+def intermediate_all_hard_numbers(by, wrong_final_labels: Path) -> dict:
+    """Intermediate-speech errors of the router configuration over all 410 turns routed to reasoning, with the same
+    judge, prompt and rule (an error turn has at least one update labelled WRONG or REVERSED). Turns counted by
+    g2_included take intermediate_error from turns.csv; the closed-form turns whose final answer is not strictly
+    correct, which g2_included leaves out, take their labels from luna_labels_wrong_final.jsonl.gz. Also the split of
+    the closed-form turns by final answer (strictly correct or not) and intermediate error, each part as a share of
+    the closed-form turns with its Wilson interval."""
+    cond = 'catt_v4_route'
+    new = load_labels(wrong_final_labels)
+    hard = [d[cond] for d in by.values() if cond in d and d[cond]['route'] == 'hard']
+    wrong_final = {r['key'] for r in hard if r['closed'] and r.get('correct_strict') != 1}
+    turns = []      # (closed, correct final, intermediate error)
+    for r in hard:
+        if r.get('g2_included') and r.get('intermediate_error') is not None and r['key'] not in wrong_final:
+            err = bool(r['intermediate_error'])
+        elif r['key'] in wrong_final and r['key'] in new:
+            err = any(x in ERROR_LABELS for x in new[r['key']]['intermediate'])
+        else:   # e.g. a rerun's turns.csv: the released labels do not cover its turns
+            print(f'intermediate errors over all turns routed to reasoning not computed: no label for {r["key"]}')
+            return {}
+        turns.append((bool(r['closed']), r['key'] not in wrong_final, err))
+    res: dict = {}
+    for scope, f in (('all', lambda t: True), ('closed_only', lambda t: t[0]),
+                     ('wrong_final_closed', lambda t: t[0] and not t[1])):
+        sel = [t for t in turns if f(t)]
+        res[f'intermediate_error_all_hard|{scope}'] = rate_wilson(sum(t[2] for t in sel), len(sel))
+    closed = [t for t in turns if t[0]]
+    split: dict = {'n_turns': len(closed)}
+    for name, ok, err in (('correct_final|no_error', True, False), ('correct_final|error', True, True),
+                          ('wrong_final|error', False, True), ('wrong_final|no_error', False, False)):
+        k = sum(1 for t in closed if t[1] == ok and t[2] == err)
+        lo, hi = wilson(k, len(closed))
+        split[name] = {'n_turns': k, 'share': k / len(closed), 'wilson_low': lo, 'wilson_high': hi}
+    res['intermediate_error_all_hard|closed_split'] = split
+    return res
+
+
+# ----------------------------------------------------------------------------------------------------------------
 # ReVerT comparison (139 items)
 # ----------------------------------------------------------------------------------------------------------------
 
@@ -597,6 +649,11 @@ def main() -> None:
                                                  sorted({r['condition'] for r in rv_rows if r['condition'].startswith('revert')})),
            'revert': revert_numbers(data / 'revert' / 'turns.jsonl', by),
            'transfer': transfer_numbers(data / 'transfer' / 'turns.csv', by)}
+    # router configuration: intermediate-speech errors over all turns routed to reasoning (wrong-final labels added)
+    res['v4']['catt_v4_route'].update(intermediate_all_hard_numbers(by, data / 'v4' / 'luna_labels_wrong_final.jsonl.gz'))
+    res['luna_retest']['intermediate_error_flag|wrong_final'] = luna_retest_numbers(
+        data / 'v4' / 'luna_labels_wrong_final.jsonl.gz',
+        data / 'v4' / 'luna_labels_wrong_final_retest.jsonl.gz')['intermediate_error_flag']
     (out / 'paper_numbers.json').write_text(json.dumps(res, indent=1, sort_keys=True) + '\n')
     print(f'written {out / "paper_numbers.json"}')
     if a.check:

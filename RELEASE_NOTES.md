@@ -1,5 +1,33 @@
 # Release notes
 
+## 1.1.0 (2026-10-22)
+
+Adds the intermediate-error labels of the hard-routed closed-form turns with a wrong final answer, so that the
+intermediate-speech error rates over all turns routed to reasoning can be recomputed from the release.
+
+- `data/v4/luna_labels_wrong_final.jsonl.gz` (new): gpt-5.6-luna intermediate-error labels of the 65 closed-form turns
+  of the router configuration that were routed to reasoning and whose final answer is not strictly correct (549
+  updates), the turns that `g2_included` leaves out. Same judge snapshot, prompt, settings and counting rule as the
+  labels in `data/v4/luna_labels.jsonl.gz`; same format and text rules (GPQA Diamond and AIME updates as hashes and
+  lengths); no judge notes. The release's `judge_luna.py --check-prompts` re-renders all 71 recorded prompts of this
+  judging run with identical sha256.
+- `data/v4/luna_labels_wrong_final_retest.jsonl.gz` (new): the re-judged sample of these labels (6 turns, drawn with
+  `--retest 0.10 --retest-seed 20261009`); same intermediate-error flag in 6 of 6.
+- `evaluation/analysis/reproduce_paper.py` and `expected/paper_numbers_expected.json`: 35 further values, now 6,003
+  with 0 differences. For the router configuration, the intermediate-error rate over all 410 turns routed to
+  reasoning (62 turns, 15.1 % [12.0, 18.9]), over their 168 closed-form turns (58, 34.5 % [27.8, 42.0]) and over the
+  65 closed-form turns with a wrong final answer (32, 49.2 % [37.5, 61.1]); the split of the 168 closed-form turns
+  into correct final answer without and with an intermediate error (77 and 26) and wrong final answer with and
+  without one (32 and 33), each as a share with its Wilson interval; and the retest agreement of the new labels.
+- Unchanged: `data/v4/turns.csv` (including `g2_included` and `intermediate_error`), `data/v4/luna_labels.jsonl.gz`,
+  `data/v4/luna_labels_retest.jsonl.gz`, all other data files, `orchestration/`, `evaluation/judging/` and
+  `build_turns.py`, so the byte-for-byte and checksum statements of 1.0.0 still hold. The rates conditional on a correct final answer (26 of 103 closed-form turns, 30 of 345 turns
+  routed to reasoning) are unchanged. The NVIDIA-router and all-thinking configurations have no labels for their
+  wrong-final turns.
+- Documentation: `docs/DATA.md` (the new files and how they relate to `g2_included`), `README.md`,
+  `docs/REPRODUCE.md` and `evaluation/analysis/README.md` (what the script recomputes), version 1.1.0 in
+  `CITATION.cff` and `.zenodo.json`, and `SHA256SUMS`.
+
 ## 1.0.0 (2026-10-16)
 
 First public release, accompanying the revised manuscript.
